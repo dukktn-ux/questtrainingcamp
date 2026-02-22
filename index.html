@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCO QUEST</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cinzel+Decorative:wght@700;900&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ancient-gold: #b38f4d;
+            --ancient-brown: #3d2b25;
+            --ancient-dark: #2a1e1a; /* より濃い茶色 */
+            --paper-center: #e8dcc6;
+            --paper-edge: #a68b6d;
+            --burn-shadow: rgba(43, 30, 22, 0.8);
+        }
+
+        body {
+            font-family: 'Noto Serif JP', serif;
+            background-color: #0d0a08;
+            background-image: 
+                radial-gradient(circle at center, transparent 0%, #000 100%),
+                url('https://www.transparenttextures.com/patterns/dark-matter.png');
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 60px 0;
+            color: var(--ancient-brown);
+            overflow-y: auto;
+        }
+
+        /* --- ランダムに破れた紙コンテナ --- */
+        .paper-container {
+            position: relative;
+            background-color: var(--paper-center);
+            background-image: 
+                radial-gradient(circle at center, transparent 30%, var(--paper-edge) 100%),
+                url('https://www.transparenttextures.com/patterns/old-map.png');
+            background-blend-mode: multiply;
+            padding: 6rem 4rem 8rem 4rem; 
+            max-width: 650px;
+            width: 85%;
+            text-align: center;
+            margin-bottom: 2rem;
+
+            /* ランダムな破れマスク */
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cdefs%3E%3Cfilter id='rough-edge' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03 0.06' numOctaves='5' result='noise' /%3E%3CfeDisplacementMap in='SourceGraphic' in2='noise' scale='25' xChannelSelector='R' yChannelSelector='G' /%3E%3C/filter%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='black' filter='url(%23rough-edge)' /%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cdefs%3E%3Cfilter id='rough-edge' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03 0.06' numOctaves='5' result='noise' /%3E%3CfeDisplacementMap in='SourceGraphic' in2='noise' scale='25' xChannelSelector='R' yChannelSelector='G' /%3E%3C/filter%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='black' filter='url(%23rough-edge)' /%3E%3C/svg%3E");
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            filter: drop-shadow(15px 20px 25px rgba(0,0,0,0.9));
+        }
+
+        .paper-container::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            box-shadow: inset 0 0 70px var(--burn-shadow);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* --- タイトル部分の強化 --- */
+        .title-area {
+            margin-bottom: 2.5rem;
+        }
+
+        h1 {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(2.2rem, 10vw, 3.8rem); /* 少し大きく */
+            margin: 0;
+            color: var(--ancient-dark); /* より深い色にして背景との差をつける */
+            letter-spacing: 0.2em; /* 文字間隔を広げて高級感を */
+            
+            /* 多重シャドウで「彫り込み」と「浮き上がり」を同時に表現 */
+            text-shadow: 
+                -1px -1px 0px rgba(255,255,255,0.4), /* 左上の光 */
+                1px 1px 0px rgba(0,0,0,0.5),        /* 右下の影 */
+                3px 3px 8px rgba(0,0,0,0.3);        /* 全体の立体感 */
+        }
+
+        .decorative-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(to var(--dir, right), transparent, var(--ancient-gold));
+            opacity: 0.6;
+        }
+
+        .divider-diamond {
+            width: 12px;
+            height: 12px;
+            background: var(--ancient-gold);
+            transform: rotate(45deg);
+            margin: 0 20px;
+            border: 1px solid var(--ancient-brown);
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        /* --- 入力・表示部分 --- */
+        label { display: block; margin-bottom: 0.8rem; font-weight: bold; font-size: 1.1rem; letter-spacing: 1px; }
+
+        select, input[type="text"] {
+            padding: 12px; width: 85%; background: rgba(255, 255, 255, 0.15);
+            border: none; border-bottom: 2px dotted var(--ancient-gold);
+            font-size: 1.2rem; font-family: 'Noto Serif JP', serif;
+            margin-bottom: 2rem; outline: none; color: var(--ancient-brown);
+            text-align: center; text-align-last: center;
+        }
+
+        button {
+            padding: 15px 50px; background-color: var(--ancient-brown); color: #f2e3c9;
+            border: 3px double var(--ancient-gold); font-family: 'Noto Serif JP', serif;
+            font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; letter-spacing: 6px;
+        }
+
+        button:hover { background-color: #2a1e1a; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+
+        #message { margin: 1.5rem 0; font-weight: bold; font-size: 1.1rem; line-height: 1.8; min-height: 1.5rem; }
+
+        #imageContainer {
+            margin: 2.5rem auto; display: none; justify-content: center; align-items: center;
+            border: 4px groove var(--ancient-gold); background: #000; padding: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+        }
+
+        #displayImage { max-width: 100%; max-height: 50vh; height: auto; display: block; }
+
+        #saveNote {
+            display: none; margin: 2rem 0 1rem 0; font-size: 0.95rem; color: #5d4037;
+            font-style: italic; border-top: 1px dotted rgba(179, 143, 77, 0.5); padding-top: 1.5rem;
+        }
+
+        .next-btn-area { margin-top: 2rem; min-height: 60px; }
+        .next-btn { background-color: #5d4037; font-size: 1.1rem; padding: 12px 40px; display: none; margin: 0 auto; color: #f2e3c9; border: 1px solid var(--ancient-gold); }
+
+        footer {
+            margin-top: 3rem; padding-bottom: 40px; font-family: 'Cinzel', serif;
+            font-size: 0.9rem; letter-spacing: 3px; color: rgba(179, 143, 77, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+<div class="paper-container">
+    <div class="title-area">
+        <h1>ARCO QUEST</h1>
+        <div class="decorative-divider">
+            <div class="divider-line" style="--dir: right;"></div>
+            <div class="divider-diamond"></div>
+            <div class="divider-line" style="--dir: left;"></div>
+        </div>
+    </div>
+    
+    <div id="inputSection">
+        <label for="optionSelect">所属班を選べ</label>
+        <select id="optionSelect">
+            <option value="">...</option>
+            <option value="A">A 班</option>
+            <option value="B">B 班</option>
+            <option value="C">C 班</option>
+            <option value="D">D 班</option>
+            <option value="E">E 班</option>
+        </select>
+
+        <label for="passwordInput">合言葉を入力せよ</label>
+        <input type="text" id="passwordInput" placeholder="..." autocomplete="off">
+        <br>
+        <button id="answerBtn" onclick="unlockArchive()">回答</button>
+    </div>
+    
+    <div id="message"></div>
+
+    <div id="imageContainer">
+        <img id="displayImage" src="" alt="QUEST IMAGE">
+    </div>
+
+    <div id="saveNote">
+        この光景を記録（保存）しておくことを推奨する...
+    </div>
+
+    <div class="next-btn-area">
+        <button id="nextBtn" class="next-btn" onclick="resetQuest()">次の合言葉を入力する</button>
+    </div>
+</div>
+
+<footer>presented by ARCO 3rd year</footer>
+
+<script>
+    const archiveData = {
+        "アイドル": {//【第１問】の合言葉
+            "successMsg": "【第１問】正解。<br>次の場所で、新たなる試練がまっている。<br>部屋を移動するときは静かにすること。",
+            "images": {
+                "A": "image1.png",
+                "B": "image1.png",
+                "C": "image1.png",
+                "D": "image1.png",
+                "E": "image1.png"
+            }
+        },
+        "pass": {//【第２問】A班の合言葉
+            "successMsg": "【第２問】正解。<br>次は【第３問】だ。",
+            "images": {
+                "A": "image2.png",
+                "B": "image2.png",
+                "C": "image2.png",
+                "D": "image2.png",
+                "E": "image2.png"
+            }
+        }, 
+        "うちゅう": {//【第３問】A班の合言葉
+            "successMsg": "正しい写真が表示された場合、【第３問】正解。<br>次の場所で、新たなる試練がまっている。",  
+            "images": {//しょっぴーの個室へ
+                "A": "image3.png",
+                "B": "image_miss.png",
+                "C": "image_miss.png",
+                "D": "image_miss.png",
+                "E": "image_miss.png"
+            }
+        },
+        "コンビニ": {//【第３問】B班の合言葉
+                 "successMsg": "正しい写真が表示された場合、【第３問】正解。<br>次の場所で、新たなる試練がまっている。",  
+            "images": {//しょっぴーの個室へ
+                "A": "image_miss.png",
+                "B": "image3.png",
+                "C": "image_miss.png",
+                "D": "image_miss.png",
+                "E": "image_miss.png"
+            }
+        },
+        "としょかん": {//【第３問】C班の合言葉
+             "successMsg": "正しい写真が表示された場合、【第３問】正解。<br>次の場所で、新たなる試練がまっている。",  
+            "images": {//しょっぴーの個室へ
+                "A": "image_miss.png",
+                "B": "image_miss.png",
+                "C": "image3.png",
+                "D": "image_miss.png",
+                "E": "image_miss.png"
+            }
+        },
+        "カラオケ": {//【第３問】D班の合言葉
+                "successMsg": "正しい写真が表示された場合、【第３問】正解。<br>次の場所で、新たなる試練がまっている。",                   
+                "images": {//しょっぴーの個室へ
+                "A": "image_miss.png",
+                "B": "image_miss.png",
+                "C": "image_miss.png",
+                "D": "image3.png",
+                "E": "image_miss.png"
+            }
+        },
+        "ペンギン": {//【第３問】E班の合言葉
+            "successMsg": "正しい写真が表示された場合、【第３問】正解。<br>次の場所で、新たなる試練がまっている。",                   
+            "images": {//しょっぴーの個室へ
+                "A": "image_miss.png",
+                "B": "image_miss.png",
+                "C": "image_miss.png",
+                "D": "image_miss.png",
+                "E": "image3.png"
+            }
+        },
+        "ARCO": {
+            "successMsg": "【第４問】正解。<br>写真の場所へ行き、この画面を提示せよ",                   
+            "images": {//しょっぴーの個室へ
+                "A": "image3.png",
+                "B": "image3.png",
+                "C": "image3.png",
+                "D": "image3.png",
+                "E": "image3.png"
+            }
+        },
+        "架け橋": {
+            "successMsg": "【最終問題】正解。<br>写真の場所へ行き、秘宝を手に入れよ",                   
+            "images": {//ゆうきの個室へ
+                "A": "image5.png",
+                "B": "image5.png",
+                "C": "image5.png",
+                "D": "image5.png",
+                "E": "image5.png"
+            }
+        },
+    };
+
+    function unlockArchive() {
+        const passInput = document.getElementById('passwordInput');
+        const pass = passInput.value.trim();
+        const option = document.getElementById('optionSelect').value;
+        const img = document.getElementById('displayImage');
+        const container = document.getElementById('imageContainer');
+        const msg = document.getElementById('message');
+        const nextBtn = document.getElementById('nextBtn');
+        const saveNote = document.getElementById('saveNote');
+        const answerBtn = document.getElementById('answerBtn');
+
+        if (option === "") {
+            msg.textContent = "所属班が選択されていない。";
+            msg.style.color = "#8b0000";
+            return;
+        }
+
+        if (pass === "") {
+            msg.textContent = "合言葉が入力されていない。<br>または、全角・半角スペースが含まれている。";
+            msg.style.color = "#8b0000";
+            return;
+        }
+
+        const entry = archiveData[pass];
+
+        if (entry) {
+            img.src = entry.images[option];
+            container.style.display = "flex";
+            msg.innerHTML = entry.successMsg;
+            msg.style.color = "#2e7d32"; 
+            saveNote.style.display = "block";
+            nextBtn.style.display = "block";
+            answerBtn.style.display = "none";
+            
+            setTimeout(() => {
+                nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 150);
+        } else {
+            container.style.display = "none";
+            msg.textContent = "その合言葉は記されていない。";
+            msg.style.color = "#8b0000";
+            saveNote.style.display = "none";
+            nextBtn.style.display = "none";
+        }
+    }
+
+    function resetQuest() {
+        const passInput = document.getElementById('passwordInput');
+        const container = document.getElementById('imageContainer');
+        const msg = document.getElementById('message');
+        const nextBtn = document.getElementById('nextBtn');
+        const saveNote = document.getElementById('saveNote');
+        const answerBtn = document.getElementById('answerBtn');
+
+        passInput.value = "";
+        container.style.display = "none";
+        msg.innerHTML = "";
+        saveNote.style.display = "none";
+        nextBtn.style.display = "none";
+        answerBtn.style.display = "inline-block";
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        passInput.focus();
+    }
+
+    document.getElementById('passwordInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') unlockArchive();
+    });
+</script>
+
+</body>
+</html>
